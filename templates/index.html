@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Strava TSS Plot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Strava TSS Dashboard</h1>
+        <div id="plotly-div" style="text-align:center;">
+            {{ plot_div | safe }}
+        </div>
+
+        <form method="post" action="{{ url_for('reboot_route') }}">
+            <button type="submit" class="btn">Daten aktualisieren</button>
+        </form>
+    </div>
+</body>
+</html>
