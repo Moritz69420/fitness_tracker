@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from tabulate import tabulate
 from datetime import datetime
 import subprocess
+from tabulate import tabulate
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_strava_data_200():
@@ -431,11 +432,6 @@ def plot_graph():
     plot_interaktiver_tss_sticks(tss_per_day_7, rolling_avg_7, rolling_avg_42)
 
 
-import sqlite3
-from tabulate import tabulate
-from datetime import datetime
-import os
-
 def export_db_table_to_txt(db_path, table_name, exclude_columns=None, output_prefix="db_export"):
     """
     Exportiert den Inhalt einer SQLite-Tabelle als Texttabelle in eine .txt-Datei
@@ -494,8 +490,8 @@ def export_db_table_to_txt(db_path, table_name, exclude_columns=None, output_pre
 def reboot():
     """Aktualisiert die Datenbank von Strava, berechnet TSS und committet ins Git-Repo."""
     # 1️⃣ Neue Aktivitäten laden & TSS berechnen
-    # data_into_database(get_strava_data_200())
-    # add_tss_to_all_activities()
+    data_into_database(get_strava_data_200())
+    add_tss_to_all_activities()
     # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
 
     # 2️⃣ Git-Commit + Push
