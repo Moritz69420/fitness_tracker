@@ -1,3 +1,4 @@
+import math
 import urllib3
 import sqlite3
 import requests
@@ -6,10 +7,34 @@ import plotly.express as px
 import plotly.graph_objects as go
 from tabulate import tabulate
 from datetime import datetime
+import subprocess
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def get_strava_data_200():
+    auth_url = "https://www.strava.com/oauth/token"
+    activites_url = "https://www.strava.com/api/v3/athlete/activities"
 
-def get_strava_data():
+    payload = {
+        'client_id': "170429",
+        'client_secret': 'e231dc2bb14aa44848628e8d052b716cc4f55f3e',
+        'refresh_token': '933201b48fdfae35afe1fecd179a6dec3948f3e3',
+        'grant_type': "refresh_token",
+        'f': 'json'
+    }
+
+    print("Requesting Token...\n")
+    res = requests.post(auth_url, data=payload, verify=False)
+    access_token = res.json()['access_token']
+    # print("Access Token = {}\n".format(access_token))
+
+    header = {'Authorization': 'Bearer ' + access_token}
+    param = {'per_page': 200, 'page': 1}
+    my_dataset = requests.get(activites_url, headers=header, params=param).json()
+
+    return my_dataset
+
+
+def get_strava_all_data():
     """
     exports all the strava acitivities on my strava account
     """
@@ -150,8 +175,6 @@ def calc_tss(id: int):
     conn.close()
 
 
-import sqlite3
-import math
 
 def add_tss_to_all_activities(db_path="strava_data.db", ftp_bike=300, ftp_run=280, debug=True):
     conn = sqlite3.connect(db_path)
@@ -460,16 +483,25 @@ def export_db_table_to_txt(db_path, table_name, exclude_columns=None, output_pre
 
 
 def reboot():
-    """Aktualisiert die Datenbank von Strava, errechnet die fehlenden TSS werte und gibt eine txt-log file aus."""
-    # Neue aktiviäten in die datenbank
-    data_into_database(get_strava_data())
-    # Tss Daten kalkulieren und hinzufügen
-    add_tss_to_activities()
-    # Datenbank auslesen und als log file speichern
-    export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
+    """Aktualisiert die Datenbank von Strava, berechnet TSS und committet ins Git-Repo."""
+    # 1️⃣ Neue Aktivitäten laden & TSS berechnen
+    data_into_database(get_strava_data_200())
+    add_tss_to_all_activities()
+    # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
+
+    # 2️⃣ Git-Commit + Push
+    try:
+        subprocess.run(["git", "add", "strava_data.db"], check=True)
+        commit_msg = f"Update Strava-Datenbank {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+        subprocess.run(["git", "push"], check=True)
+        print("✅ Änderungen ins GitHub-Repo gepusht!")
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Git-Fehler: {e}")
+
 
 if __name__ == "__main__":
-    # reboot()
+    reboot()
     # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
     # plot_graph()
     # add_tss_to_all_activities()

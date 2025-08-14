@@ -29,6 +29,8 @@ def reboot_route():
     return redirect(url_for("index"))  # Zurück zur Startseite (mit neuem Plot)
 
 
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # holt PORT von Render, sonst 5000 lokal
     app.run(host="0.0.0.0", port=port)
