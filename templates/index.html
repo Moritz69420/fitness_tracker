@@ -2,16 +2,56 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8" />
-    <title>Strava TSS Plot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava TSS Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Strava TSS Dashboard</h1>
-        <div id="plotly-div" style="text-align:center;">
-            {{ plot_div | safe }}
+        
+        <!-- Plot Section -->
+        <div class="plot-section">
+            <h2>TSS Verlauf</h2>
+            <div id="plotly-div">
+                {{ plot_div | safe }}
+            </div>
         </div>
-
+        
+        <!-- Activities Table Section -->
+        <div class="table-section">
+            <h2>Letzte Aktivitäten</h2>
+            <div class="table-container">
+                <table class="activities-table">
+                    <thead>
+                        <tr>
+                            <th>Aktivität</th>
+                            <th>Datum</th>
+                            <th>Distanz</th>
+                            <th>Höhenmeter</th>
+                            <th>Zeit</th>
+                            <th>Sport</th>
+                            <th>TSS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in activities %}
+                        <tr>
+                            <td class="activity-name">{{ activity.name }}</td>
+                            <td>{{ activity.date }}</td>
+                            <td class="numeric">{{ activity.distance }}</td>
+                            <td class="numeric">{{ activity.elevation }}</td>
+                            <td class="numeric">{{ activity.time }}</td>
+                            <td class="sport-type">{{ activity.sport }}</td>
+                            <td class="numeric tss-value">{{ activity.tss }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Update Button -->
         <form method="post" action="{{ url_for('reboot_route') }}">
             <button type="submit" class="btn">Daten aktualisieren</button>
         </form>
