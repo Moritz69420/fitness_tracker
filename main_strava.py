@@ -497,6 +497,7 @@ def reboot():
     # 2️⃣ Git-Commit + Push
     try:
         subprocess.run(["git", "add", "strava_data.db"], check=True)
+        ## wenn ich "strava_data.db" zu "." ändern würde, würde es mir wahrscheinlich alle neu commiten
         commit_msg = f"Update Strava-Datenbank {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
         subprocess.run(["git", "push"], check=True)
@@ -504,6 +505,17 @@ def reboot():
     except subprocess.CalledProcessError as e:
         print(f"⚠️ Git-Fehler: {e}")
 
+
+def git_push():
+    try:
+        subprocess.run(["git", "add", "."], check=True)
+        ## wenn ich "strava_data.db" zu "." ändern würde, würde es mir wahrscheinlich alle neu commiten
+        commit_msg = f"Update all code {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+        subprocess.run(["git", "push"], check=True)
+        print("✅ Änderungen ins GitHub-Repo gepusht!")
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Git-Fehler: {e}")
 
 
 def delete_last_n_activities(n, db_path="strava_data.db"):
@@ -535,7 +547,8 @@ def delete_last_n_activities(n, db_path="strava_data.db"):
 
 
 if __name__ == "__main__":
-    reboot()
+    # reboot()
+    git_push()
     # delete_last_n_activities(5)
     # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
     # plot_graph()
