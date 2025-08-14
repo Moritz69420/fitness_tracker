@@ -67,8 +67,8 @@ def get_activities_table_data(limit=50):
         
         # Aktivitätsname kürzen falls zu lang
         activity_name = row['activity_name']
-        if len(activity_name) > 25:
-            activity_name = activity_name[:22] + "..."
+        # if len(activity_name) > 40:
+        #     activity_name = activity_name[:40] + "..."
         
         activities.append({
             'name': activity_name,

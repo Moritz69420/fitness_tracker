@@ -42,12 +42,14 @@ h2 {
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
+    flex-basis: 0; 
 }
 
 #plotly-div {
     text-align: center;
     flex: 1;
     min-height: 0;
+    min-height: 200px;
 }
 
 #plotly-div > div {
@@ -194,6 +196,7 @@ h2 {
     .plot-section {
         flex: 2.8;
         margin-bottom: 8px;
+        flex-basis: 0; 
     }
     
     .table-section {
@@ -262,6 +265,7 @@ h2 {
     .plot-section {
         flex: 2.2;
         margin-bottom: 0;
+        flex-basis: 0; 
     }
     
     .table-section {

@@ -51,10 +51,35 @@
             </div>
         </div>
         
-        <!-- Update Button -->
-        <form method="post" action="{{ url_for('reboot_route') }}">
-            <button type="submit" class="btn">Daten aktualisieren</button>
-        </form>
-    </div>
+            <!-- Update Button -->
+    <form method="post" action="{{ url_for('reboot_route') }}">
+        <button type="submit" class="btn">Daten aktualisieren</button>
+    </form>
+
+    <!-- Plotly Resize Script -->
+    <script>
+        window.addEventListener('load', function() {
+            const plotDiv = document.getElementById('plotly-div');
+            if(plotDiv) {
+                // Plotly neu rendern/resizen
+                Plotly.Plots.resize(plotDiv);
+            }
+
+            // Falls mehrere Plots:
+            // document.querySelectorAll('.plot-section').forEach(function(section) {
+            //     const plotDiv = section.querySelector('div[id^="plotly-div"]');
+            //     if(plotDiv) Plotly.Plots.resize(plotDiv);
+            // });
+            });
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+            const plotDiv = document.getElementById('plotly-div');
+            if(plotDiv) Plotly.Plots.resize(plotDiv);
+            }, 100); // 100ms warten
+            });
+
+</script>
+
+</div>
 </body>
 </html>
