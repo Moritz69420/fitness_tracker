@@ -175,7 +175,6 @@ def calc_tss(id: int):
     conn.close()
 
 
-
 def add_tss_to_all_activities(db_path="strava_data.db", ftp_bike=300, ftp_run=280, debug=True):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -222,7 +221,6 @@ def add_tss_to_all_activities(db_path="strava_data.db", ftp_bike=300, ftp_run=28
 
     conn.commit()
     conn.close()
-
 
 
 def add_tss_to_activities():
@@ -433,9 +431,15 @@ def plot_graph():
     plot_interaktiver_tss_sticks(tss_per_day_7, rolling_avg_7, rolling_avg_42)
 
 
+import sqlite3
+from tabulate import tabulate
+from datetime import datetime
+import os
+
 def export_db_table_to_txt(db_path, table_name, exclude_columns=None, output_prefix="db_export"):
     """
-    Exportiert den Inhalt einer SQLite-Tabelle als Texttabelle in eine .txt-Datei.
+    Exportiert den Inhalt einer SQLite-Tabelle als Texttabelle in eine .txt-Datei
+    und legt die Datei einen Ordner über dem aktuellen Arbeitsverzeichnis ab.
 
     Args:
         db_path (str): Pfad zur .db Datei.
@@ -474,19 +478,24 @@ def export_db_table_to_txt(db_path, table_name, exclude_columns=None, output_pre
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     dateiname = f"{output_prefix}_{table_name}_{timestamp}.txt"
 
+    # Pfad einen Ordner höher
+    parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+    dateipfad = os.path.join(parent_dir, dateiname)
+
     # In Datei schreiben
-    with open(dateiname, "w", encoding="utf-8") as f:
+    with open(dateipfad, "w", encoding="utf-8") as f:
         f.write(tabelle)
 
-    print(f"✅ Export abgeschlossen: {dateiname}")
-    return dateiname
+    print(f"✅ Export abgeschlossen: {dateipfad}")
+    return dateipfad
+
 
 
 def reboot():
     """Aktualisiert die Datenbank von Strava, berechnet TSS und committet ins Git-Repo."""
     # 1️⃣ Neue Aktivitäten laden & TSS berechnen
-    data_into_database(get_strava_data_200())
-    add_tss_to_all_activities()
+    # data_into_database(get_strava_data_200())
+    # add_tss_to_all_activities()
     # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
 
     # 2️⃣ Git-Commit + Push
@@ -500,8 +509,38 @@ def reboot():
         print(f"⚠️ Git-Fehler: {e}")
 
 
+
+def delete_last_n_activities(n, db_path="strava_data.db"):
+    """
+    Löscht die letzten n Zeilen aus der Tabelle 'aktivitaeten' 
+    in der angegebenen SQLite-Datenbank.
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # IDs der letzten n Einträge holen
+    cursor.execute(f"SELECT id FROM aktivitaeten ORDER BY id DESC LIMIT {n}")
+    ids_to_delete = [row[0] for row in cursor.fetchall()]
+
+    if not ids_to_delete:
+        print("⚠️ Keine Einträge gefunden – nichts gelöscht.")
+        conn.close()
+        return
+
+    # Löschen
+    cursor.execute(
+        f"DELETE FROM aktivitaeten WHERE id IN ({','.join('?' * len(ids_to_delete))})",
+        ids_to_delete
+    )
+    conn.commit()
+    conn.close()
+
+    print(f"✅ Letzte {len(ids_to_delete)} Aktivitäten gelöscht (IDs: {ids_to_delete})")
+
+
 if __name__ == "__main__":
     reboot()
+    # delete_last_n_activities(5)
     # export_db_table_to_txt("strava_data.db", "aktivitaeten", "polyline")
     # plot_graph()
     # add_tss_to_all_activities()
